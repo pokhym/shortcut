@@ -45,6 +45,8 @@ If you're building the kernel on a fresh system, you'll need build dependencies:
 
 There is no need to run `make menuconfig` the config is provided in the `linux-lts-quantal-3.5.0` folder if you wish to make any changes make sure `CONFIG_MM_OWNER` is part of your configuration options and that the architecture is `i386` otherwise the Shortcut work will not compile.
 
+For verbose logging in `/var/log/kern.log` please set `replay_debug = 1` in `kernel/replay.c`
+
 To build (and run) the kernel, run the following
 
     cd $OMNIPLAY_DIR/linux-lts-quantal-3.5.0
