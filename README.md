@@ -213,6 +213,8 @@ Now change the file ~/xword/board.tofro and save it:
 
 	 remove the black squares in the first row at the 6th and 11th columns.
 
+Alternatively simply copy over `board.tofro` with `board.tofro.replay`
+
 Now replay the execution:
 
 First, make sure sdaemon is running. The sdaemon is required for transparent recovery:
