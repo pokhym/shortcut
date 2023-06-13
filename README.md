@@ -33,6 +33,12 @@ NOTE: You may also check out ./setup.sh -h and see if you want any of the additi
 
 ##### *Building the kernel* #####
 
+NOTE: Follow the following link to be able to install any packages
+
+```
+https://askubuntu.com/questions/91815/how-to-install-software-or-upgrade-from-an-old-unsupported-release
+```
+
 If you're building the kernel on a fresh system, you'll need build dependencies:
 
     sudo apt-get build-dep linux-image-3.5.0-54-generic g++
