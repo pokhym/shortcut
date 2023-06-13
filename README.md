@@ -9,13 +9,13 @@
 | test | All utility tools, including recording the process, profiler, a daemon that supports transparent record and recovery, convenient tools for running PIN instruments.  |
 | pin_tools | Also Intel PIN tools, but most of them are debugging tools we use when developing the system.  |
 
-# Links to Downloads #
+# Links to Downloads/Modified Files #
 
 | Soft | Dexription |
 |--|--|
 | Ubuntu | i386 version: https://old-releases.ubuntu.com/releases/precise/ |
 | pin-2.14 | Found in main directory |
-
+| Kernel Config | linux-lts-quantal-3.5.0/conf |
 
 # Setup #
 ### 1. Kernel setup ###
@@ -42,6 +42,7 @@ There is no need to run `make menuconfig` the config is provided in the `linux-l
 To build (and run) the kernel, run the following
 
     cd $OMNIPLAY_DIR/linux-lts-quantal-3.5.0
+    cp conf .conf
     sudo ./compile
     # You'll only need to do a modules_install if your modules were rebuilt, usually this is not the case (with the exception of your first build), and you wont have to
     sudo make INSTALL_MOD_STRIP=1 modules_install
