@@ -9,6 +9,14 @@
 | test | All utility tools, including recording the process, profiler, a daemon that supports transparent record and recovery, convenient tools for running PIN instruments.  |
 | pin_tools | Also Intel PIN tools, but most of them are debugging tools we use when developing the system.  |
 
+# Links to Downloads #
+
+| Soft | Dexription |
+|--|--|
+| Ubuntu | i386 version: https://old-releases.ubuntu.com/releases/precise/ |
+| pin-2.14 | Found in main directory |
+
+
 # Setup #
 ### 1. Kernel setup ###
 
@@ -29,6 +37,8 @@ If you're building the kernel on a fresh system, you'll need build dependencies:
 
     sudo apt-get build-dep linux-image-3.5.0-54-generic g++
 
+There is no need to run `make menuconfig` the config is provided in the `linux-lts-quantal-3.5.0` folder if you wish to make any changes make sure `CONFIG_MM_OWNER` is part of your configuration options and that the architecture is `i386` otherwise the Shortcut work will not compile.
+
 To build (and run) the kernel, run the following
 
     cd $OMNIPLAY_DIR/linux-lts-quantal-3.5.0
@@ -48,6 +58,17 @@ You could alternatively (and equivalently) run:
     sudo make modules_install
     sudo make install
     sudo make headers_install INSTALL_HDR_PATH=$OMNIPLAY_DIR/test/replay_headers
+
+Before rebooting, please make sure that you switch GRUB over to the newly installed kernel.
+Please following the instructions at
+
+```
+	https://unix.stackexchange.com/questions/694323/how-toset-default-kernel-in-debian
+```
+
+Following that please reboot.
+
+
     sudo reboot
 
 ##### *Building Glibc* #####
@@ -88,6 +109,14 @@ To build the tools (no installation):
 
 Note: Depends on the headers_install step from building the kernel
 
+NOTE2: You might need to install libss-dev
+
+```
+	sudo apt-get install libssl-dev
+```
+
+Run
+
     cd $OMNIPLAY_DIR/test/dev
     make
     cd ..
@@ -96,6 +125,8 @@ Note: Depends on the headers_install step from building the kernel
 
 ### 3. Pin tool compilation ###
 We use Intel Pin version 2.13 
+
+NOTE: The folder containing the Pin-2.14 source **MUST BE NAMED "PIN"** if it is named **pin-2.14** tools used in `test/` will fail due to hard-coded pathing.
 
 To build:
 
@@ -156,16 +187,20 @@ A successful replay will print the message "Goodbye, cruel lamp! This replay is 
 Here we use the xword benchmark mentioned in the paper, as this benchmark takes less to reproduce and also demonstrates our ideas of predicated slices, transparent recovery, control flow divergence handling. 
 
 
-	unarchive shorcut/tutorial/xword.tar.gz
-    cd xword; make  (build it)
-    cd omniplay/test
-    ~/omniplay/scripts/easy_launch.sh ~/xword/placer -b ~/xword/board.tofro -w ~/xword/wordlist/newmega.txt -v 25 -m 1 -s  (record this using omniplay)
+    cd tutorial; tar -xvf xword.tar.gz ; make placer
+    cd $OMNIPLAY_DIR/test
+    $OMNIPLAY_DIR/scripts/easy_launch.sh $OMNIPLAY_DIR/tutorial/xword-git/placer -b $OMNIPLAY_DIR/tutorial/xword-git/board.tofro -w $OMNIPLAY_DIR/tutorial/xword-git/wordlists/newmega.txt -v 25 -m 1 -s  (record this using omniplay)
 
 Use the recording to generate a slice. 
 
 	./gen_ckpt.py <replay_dir #> <ckpt #> -taint_byterange <pid>,90,5,250  (the last arguments specifies that an input could change and in this case the changed input comes from the board file)
 	
-Here the ckpt # specifies the end of the code region. In this case, it is a record/replay clock used internally in Arnold. Here we could use the last gettimeofday system call in the replay log (this is 3043 on my recording - your milage may vary). 
+Here the ckpt # specifies the end of the code region. In this case, it is a record/replay clock used internally in Arnold. Here we could use the last gettimeofday system call in the replay log (this is 3043 on my recording - your milage may vary).
+
+NOTE: `<replay_dir #>` is the number in `/replay_logdb/rec_<replay_dir #>`
+
+NOTE: `<ckpt #>` is the number from Arnold.
+To see what number occurs per system call `tail -f /var/log/kern.log` and observe during `easy_launch.sh`, the start time of a specific system call and its syscall number will be listed.
 	
 Now change the file ~/xword/board.tofro and save it:
 
@@ -180,6 +215,10 @@ First, make sure sdaemon is running. The sdaemon is required for transparent rec
 Then, do the replay with go-live. This is the our first trial to accelerate the program:
 
 	 ./resume <replay dir> --pthread ../eglibc-2.15/prefix/lib --from_ckpt=<ckpt #> -l
+
+  NOTE: `<replay dir>` is the path `/replay_logdb/rec_#` MISSING THE `/` at the end.
+
+  NOTE: `<ckpt #>` is the number of the `ckpt.#` file in `replay_logdb/rec_#`
 
 Unfortunately, for this benchmark, we need more profiling runs to get a stable slice. The above should yield a divergence and the program should produce output (thanks to sdaemon-enabled recovery). Of course, for simple programs, you may not observe any divergence for your first profiling run. 
 
