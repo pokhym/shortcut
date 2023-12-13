@@ -97,6 +97,10 @@ Note: Depends on the headers_install step from building the kernel
 ### 3. Pin tool compilation ###
 We use Intel Pin version 2.13 
 
+```
+	sudo apt-get install libglib2.0-dev libboost-dbg
+```
+
 To build:
 
     cd omniplay/dift
