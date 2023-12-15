@@ -139,6 +139,7 @@ NOTE: The folder containing the Pin-2.14 source **MUST BE NAMED "PIN"** if it is
 
 To build:
 
+    sudo apt-get install libglib2.0-dev libboost-dbg
     cd omniplay/dift
     make PIN_ROOT=<pin_root> (i.e. make PIN_ROOT=/home/dozenow/pin -j4) 
 
